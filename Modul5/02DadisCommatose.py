@@ -3,7 +3,7 @@
 import re
 
 def dad_filter_regex(st):
-    return re.sub(r",+", "!", st)
+    return re.sub(r"[,],", "!", st)
 
 
 
