@@ -13,6 +13,7 @@ else:
 
 # HW2 
 # 2.1/15
+"""
 some_data = None
 msg = some_data or "Не було повернено даних"
 
@@ -98,3 +99,43 @@ elif num < 0:
     result = "Negative number"
 else:
     result = "It is zero"
+
+# 2.7/15
+num = int(input("Enter the integer (0 to 100): "))
+sum = 0
+
+while num > 0:
+    sum += num
+    num -= 1
+print(sum)
+
+num = int(input("Enter the integer (0 to 100): "))
+sum = 0
+current_num = 1  # Initialize a variable to keep track of the current number in the loop
+
+while current_num <= num:
+    sum += current_num
+    current_num += 1  # Increment the current number for the next iteration
+
+print("The sum of numbers from 1 to", num, "is:", sum)
+
+# 2.7/15
+
+num = int(input("Enter integer (0 for output): "))
+sum = 0
+while num != 0:
+    repeat = int(input("Enter integar to add to sum? "))
+    for i in range(repeat):
+        sum = sum + num
+    print(sum) 
+    num = int(input("Enter integer (0 for output): "))
+"""
+# 2.11/15
+while True:
+    num = int(input("Введіть число (0 для виходу): "))
+    if num == 0:
+        break
+    repeat = int(input("Скільки разів помножити число на 2? "))
+    for i in range(repeat):
+        num = num * 2
+    print(num)
