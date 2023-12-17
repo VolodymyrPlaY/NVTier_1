@@ -1,36 +1,35 @@
 """
+    Технiчний опис завдань
+    Завдання 1
+    Доробіть консольного бота помічника та додайте обробку помилок.
 
-Домашнє завдання №2
-Вітаємо!
+    Всі помилки введення користувача повинні оброблятися за допомогою декоратора input_error. 
+    Цей декоратор відповідає за повернення користувачеві повідомлень типу "Enter user name", "Give me name and phone please" тощо. 
+    Декоратор input_error повинен обробляти винятки, що виникають у функціях - handler (KeyError, ValueError, IndexError) та повертати відповідну відповідь користувачеві.
 
-Переходимо до виконання наступного домашнього завдання.
+    Додамо декоратор input_error для обробки помилки ValueError
 
-Наші цілі на сьогодні виглядають так:
+    def input_error(func):
+        def inner(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except ValueError:
+                return "Give me name and phone please."
 
-розробимо додаткові функції для консольного бота-помічника, розпочатого в попередній домашній роботі, згідно з вимогами завдання
-продовжимо працювати над нашим віртуальним асистентом з командним рядком (CLI), розширюючи його внутрішню логіку
-Загальнi критерії приймання
-Створено репозиторій goitneo-python-hw-2-назвагрупи
-Домашня робота містить посилання на репозиторiй на GitHub та прикрiплений файл репозиторію у форматi zip.
-Завдання виконані у точній відповідності до технiчного опису (рекомендацiї для виконання та критерії оцінювання).
-В консолі відсутні помилки і попередження під час запуску бота.
-Імена змінних і функцій - зрозумілі та описові.
-Код відформатований та відповідає стандарту PEP8.
-Формат оцінювання
-Оцінка від 0 до 100
-Формат здачі
-Посилання на репозиторій на Github.
-Прикрiплений файл репозиторію у форматi zip.
-ВАЖЛИВО
-Перегляньте Iнструкцію щодо завантаження робочого файлу з репозиторію на Github
+        return inner
 
-Технiчний опис завдань
-Завдання 1
-Доробіть консольного бота помічника та додайте обробку помилок.
+    Та обгорнемо декоратором функцію add_contact нашого бота, щоб ми почали обробляти помилку ValueError.
 
-Всі помилки введення користувача повинні оброблятися за допомогою декоратора input_error. Цей декоратор відповідає за повернення користувачеві повідомлень типу "Enter user name", "Give me name and phone please" тощо. Декоратор input_error повинен обробляти винятки, що виникають у функціях - handler (KeyError, ValueError, IndexError) та повертати відповідну відповідь користувачеві.
+    @input_error
+    def add_contact(args, contacts):
+        name, phone = args
+        contacts[name] = phone
+        return "Contact added."
 
-Додамо декоратор input_error для обробки помилки ValueError
+    Вам треба додати обробники до інших команд, та додати в декоратор обробку винятків інших типів. Бажаємо успіху при виконані домашнього завдання.
+
+"""
+
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -38,132 +37,74 @@ def input_error(func):
             return func(*args, **kwargs)
         except ValueError:
             return "Give me name and phone please."
-
+        except IndexError:
+            return "You should write 2 values"
+        except KeyError:
+            return "Contact not found, please add contact."
     return inner
 
-Та обгорнемо декоратором функцію add_contact нашого бота, щоб ми почали обробляти помилку ValueError.
+def parse_input(user_input):
+    cmd, *args = user_input.split()
+    cmd = cmd.strip().lower()
+    return cmd, *args
 
 @input_error
 def add_contact(args, contacts):
     name, phone = args
     contacts[name] = phone
+    print(f'{contacts=}')
     return "Contact added."
 
-Вам треба додати обробники до інших команд, та додати в декоратор обробку винятків інших типів. Бажаємо успіху при виконані домашнього завдання.
+@input_error
+def change_contact(args, contacts):
+    name, phone = args[0], args[1]
+    if name in contacts.keys():
+        contacts[name] = phone
+        print(f'{contacts=}')
+        return "Contact changed."
+    else:
+        return "Contact not found, please add contact."
 
-Завдання 2
-У цій домашній роботі ми продовжимо розвивати нашого віртуального асистента з CLI інтерфейсом.
+@input_error
+def show_contact(args, contacts):
+    name = args[0]
+    phone = contacts[name]
+    return phone 
+# TODO: Need to remove
+#    for key, value in contacts.items():
+#        if key == name:
+#            return value
+#    return "Contact not found, please add contact." 
 
-Наш асистент вже вміє взаємодіяти з користувачем за допомогою командного рядка, отримуючи команди та аргументи, та виконуючи потрібні дії. У цьому завданні потрібно буде попрацювати над внутрішньою логікою асистента, над тим, як зберігаються дані, які саме дані і що з ними можна зробити. Саму логіку ми додамо в бота в наступному домашньому завданні.
+def show_all_contact(contacts):
+    info = ""
+    for name, phone in contacts.items():
+        info += f'{name}: {phone}\n'
+    return info
 
-Застосуємо для цих цілей об'єктно-орієнтоване програмування. Спершу виділимо декілька сутностей (моделей), з якими працюватимемо.
+def main():
+    contacts = {}
+    print("Welcome to the assistant bot!")
+    while True:
+        user_input = input("Enter a command: ")
+        command, *args = parse_input(user_input)
+        print(f'{command=}, {args}')
+        if command in ["close", "exit"]:
+            print("Good bye!")
+            break
 
-У користувача буде адресна книга або книга контактів. Ця книга контактів містить записи. Кожен запис містить деякий набір полів.
+        elif command == "hello":
+            print("How can I help you?")
+        elif command == "add":
+            print(add_contact(args, contacts))   
+        elif command == "change":
+            print(change_contact(args, contacts))
+        elif command == "phone":
+            print(show_contact(args, contacts))
+        elif command == "all":
+            print(show_all_contact(contacts))
+        else:
+            print("Invalid command.")
 
-Таким чином ми описали сутності (класи), які необхідно реалізувати. Далі розглянемо вимоги до цих класів та встановимо їх взаємозв'язок, правила, за якими вони будуть взаємодіяти.
-
-Користувач взаємодіє з книгою контактів, додаючи, видаляючи та редагуючи записи. Також користувач повинен мати можливість шукати в книзі контактів записи за одним або кількома критеріями (полями).
-
-Про поля також можна сказати, що вони можуть бути обов'язковими (ім'я) та необов'язковими (телефон або email наприклад). Також записи можуть містити декілька полів одного типу (декілька телефонів наприклад). Користувач повинен мати можливість додавати/видаляти/редагувати поля у будь-якому записі.
-
-Технічне завдання
-Розробіть систему для управління адресною книгою.
-
-Сутності:
-
-Field: Базовий клас для полів запису.
-Name: Клас для зберігання імені контакту. Обов'язкове поле.
-Phone: Клас для зберігання номера телефону. Має валідацію формату (10 цифр).
-Record: Клас для зберігання інформації про контакт, включаючи ім'я та список телефонів.
-AddressBook: Клас для зберігання та управління записами.
-Функціональність:
-
-AddressBook:
-Додавання записів.
-Пошук записів за іменем.
-Видалення записів за іменем.
-Record:
-Додавання телефонів.
-Видалення телефонів.
-Редагування телефонів.
-Пошук телефону.
-Рекомендації для виконання
-В якості старту ви можете взяти наступний базовий код для реалізації цього домашнього завдання:
-
-from collections import UserDict
-
-class Field:
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return str(self.value)
-
-class Name(Field):
-    # реалізація класу
-
-class Phone(Field):
-    # реалізація класу
-
-class Record:
-    def __init__(self, name):
-        self.name = Name(name)
-        self.phones = []
-
-    # реалізація класу
-
-    def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
-
-class AddressBook(UserDict):
-    # реалізація класу
-
-Після реалізації ваш код має виконуватися наступним чином:
-
-        # Створення нової адресної книги
-    book = AddressBook()
-
-    # Створення запису для John
-    john_record = Record("John")
-    john_record.add_phone("1234567890")
-    john_record.add_phone("5555555555")
-
-    # Додавання запису John до адресної книги
-    book.add_record(john_record)
-
-    # Створення та додавання нового запису для Jane
-    jane_record = Record("Jane")
-    jane_record.add_phone("9876543210")
-    book.add_record(jane_record)
-
-    # Виведення всіх записів у книзі
-    for name, record in book.data.items():
-        print(record)
-
-    # Знаходження та редагування телефону для John
-    john = book.find("John")
-    john.edit_phone("1234567890", "1112223333")
-
-    print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
-
-    # Пошук конкретного телефону у записі John
-    found_phone = john.find_phone("5555555555")
-    print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
-
-    # Видалення запису Jane
-    book.delete("Jane")
-
-В наступному третьому домашньому завданні ми додамо цю логіку до нашого бота.
-
-Критерії оцінювання
-Клас AddressBook:
-Реалізовано метод add_record, який додає запис до self.data.
-Реалізовано метод find, який знаходить запис за ім'ям.
-Реалізовано метод delete, який видаляє запис за ім'ям.
-Клас Record:
-Реалізовано зберігання об'єкта Name в окремому атрибуті.
-Реалізовано зберігання списку об'єктів Phone в окремому атрибуті.
-Реалізовано методи для додавання - add_phone/видалення - remove_phone/редагування - edit_phone/пошуку об'єктів Phone - find_phone.
-Клас Phone:
-Реалізовано валідацію номера телефону (має бути 10 цифр).
-"""
+if __name__ == "__main__":
+    main()
