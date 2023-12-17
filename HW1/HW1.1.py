@@ -40,25 +40,52 @@ Friday: Kim Kardashian, Jan Koum
 Функція виводить користувачів з днями народження на тиждень вперед від поточного дня.
 Тиждень починається з понеділка.
 """
-from datetime import datetime 
+
+from datetime import datetime, timedelta
 from collections import defaultdict
 
-
 users = [{"name": "Bill Gates", "birthday": datetime(1955, 10, 28)},
-         {"name": "Volodya", "birthday": datetime(1999, 12, 11)},
-         {"name": "Dad", "birthday": datetime(1970, 12, 16)},
-         {"name": "Mum", "birthday": datetime(1999, 12, 17)},
-         {"name": "Vlad", "birthday": datetime(1999, 12, 14)},
-         {"name": "Andrii", "birthday": datetime(1999, 11, 15)},
-         {"name": "Oleh", "birthday": datetime(1999, 9, 12)}
+         {"name": "Volodya", "birthday": datetime(1989, 12, 12)},
+         {"name": "Dad", "birthday": datetime(1959, 12, 16)},
+         {"name": "Mum", "birthday": datetime(1960, 12, 17)},
+         {"name": "Vlad", "birthday": datetime(1991, 12, 14)},
+         {"name": "Andrii", "birthday": datetime(1990, 12, 15)},
+         {"name": "Oleh", "birthday": datetime(year=1999, month=9, day=12)}
          ]
 
 def get_birthdays_per_week(users:list[dict]):
     contacts = defaultdict(list)
     print(f'{contacts=}')
-    today = datetime.today().data()
+    today = datetime.today().date()
     print(f'{today=}')
     for user in users:
         print(f'{user=}')
-        birthday = user["birthday"].date() #Конвертуємо до типу date
-        birthday_this_year = 
+        name = user["name"]
+        birthday = user["birthday"].date()  # Конвертуємо до типу date
+        birthday_this_year = birthday.replace(year=today.year)
+        print(f'{name=} {birthday_this_year=}')
+        if birthday_this_year < today:
+            birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+            print(f'{birthday_this_year}')
+            
+        delta_days = (birthday_this_year - today).days
+        print(f'{delta_days=}')
+        if delta_days <= 7:
+            birthday_weekday = (today + timedelta(days=delta_days)).strftime("%A")
+            print(f'{birthday_weekday=}')
+            if birthday_weekday in ['Sunday','Saturday']:
+                birthday_weekday = 'Next Monday'
+            contacts[birthday_weekday].append(name)
+    print(f'{contacts=}')
+    info = ''
+    tail = ''
+    for k, value in contacts.items():
+        if k == 'Next Monday':
+            tail += f"{k}: {', '.join(value)}"
+            continue
+        info += f"{k}: {', '.join(value)}\n"
+    info += tail 
+    print(info)
+
+
+get_birthdays_per_week(users)
